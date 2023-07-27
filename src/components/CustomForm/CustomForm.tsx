@@ -1,39 +1,11 @@
-import { useState, useEffect } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { getUrlForUploading } from "../../api/getUrlForUploading";
-
-const fileToDataUri = (files: any) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      resolve(event.target?.result);
-    };
-    reader.readAsDataURL(files);
-  });
-
-const sendFilesToDisk = async (url: any, files: string[]) => {
-  let data = await fileToDataUri(files[0]);
-  console.log(data)
-
-  
-  const token = "y0_AgAAAAAhFQf_AAo_kQAAAADoy4lMzCcknY2wS5irsvvOc2y3R_QkNec";
-  const headers = {
-    "Content-Type": "application/binary",
-    Authorization: `OAuth ${token}`,
-  };
-
-  let response = await fetch(url, {
-    method: "PUT",
-    headers: headers,
-    body: JSON.stringify(data),
-  });
-  let result = await response.json();
-};
+import { sendFilesToDisk } from "../../api/sendFilesToDisk";
 
 const CustomForm = () => {
   const path =
-    "https://cloud-api.yandex.net/v1/disk/resources/upload/?path=testFolder";
+    "https://cloud-api.yandex.net/v1/disk/resources/upload/?path=testFolder7";
   return (
     <Formik
       initialValues={{ files: [] }}
@@ -44,7 +16,8 @@ const CustomForm = () => {
       })}
       onSubmit={async ({ files }) => {
         const url = await getUrlForUploading(path);
-        sendFilesToDisk(url, files);
+        const response = await sendFilesToDisk(url, files);
+        console.log(response)
       }}
     >
       {(formik) => {
