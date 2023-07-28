@@ -1,17 +1,22 @@
-import { convertFilesToDataUris } from "../helpers/convertFilesToDataUris";
+import { converDataUrisToBlob } from "../helpers/converDataUrisToBlob";
 
 const sendFilesToDisk = async (url: any, files: string[]) => {
-  let data = await convertFilesToDataUris(files);
+  let data = await converDataUrisToBlob(files);
+  console.log(data)
 
-  let response = await fetch(url, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data.join(",")),
-  });
+  for (const item of data) {
+    let response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/octet-stream",
+      },
+      body: item,
+    });
+    return response;
+  }
 
-  return response;
+
+
 };
 
   export {sendFilesToDisk}

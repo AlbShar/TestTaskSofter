@@ -13,10 +13,8 @@ export async function fetchUrl(folderName: string, fileName: any) {
 
     if (response.ok) {
       let result = await response.json();
-      console.log(result);
       return result.href;
     } else {
-      console.log(response);
       throw new Error("запрос с ошибкой");
     }
 }

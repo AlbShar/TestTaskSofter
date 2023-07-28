@@ -17,11 +17,9 @@ const CustomForm = () => {
         const folderName = "test";
         await createFolder(folderName);
         for (let file of files) {
-          const url = await fetchUrl(folderName, file['name']);
-        const response = await sendFilesToDisk(url, files);
-        console.log(response)
+          const url = await fetchUrl(folderName, file["name"]);
+          const response = await sendFilesToDisk(url, files);
         }
-        
       }}
     >
       {(formik) => {
