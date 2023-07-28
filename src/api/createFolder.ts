@@ -12,10 +12,13 @@ export async function createFolder(folderName: string) {
     },
   });
 
+
   if (response.ok) {
+    console.log(response)
     let result = await response.json();
     return result.href;
-  } else {
+  } else if (response.status === 409) {
+    console.error(response);
     throw new Error("запрос был обработан с ошибкой");
   }
 }
