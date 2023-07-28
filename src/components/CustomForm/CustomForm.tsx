@@ -15,10 +15,13 @@ const CustomForm = () => {
       })}
       onSubmit={async ({ files }) => {
         const folderName = "test";
-        const href = await createFolder(folderName);
-        const url = await fetchUrl(folderName);
+        await createFolder(folderName);
+        for (let file of files) {
+          const url = await fetchUrl(folderName, file['name']);
         const response = await sendFilesToDisk(url, files);
         console.log(response)
+        }
+        
       }}
     >
       {(formik) => {
