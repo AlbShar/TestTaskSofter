@@ -1,11 +1,14 @@
-export async function getUrlForUploading(path: string) {
+export async function createFolder(folderName: string) {
   const token = "y0_AgAAAAAhFQf_AAo_kQAAAADoy4lMzCcknY2wS5irsvvOc2y3R_QkNec";
+  const url = `https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(
+    folderName
+  )}`;
 
-  let response = await fetch(path, {
-    method: "GET",
+  let response = await fetch(url, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json;",
-      Authorization: `OAuth ${token}`,
+      Authorization: `${token}`,
     },
   });
 

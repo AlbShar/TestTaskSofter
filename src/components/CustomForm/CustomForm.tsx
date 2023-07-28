@@ -1,11 +1,10 @@
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { getUrlForUploading } from "../../api/getUrlForUploading";
+import { createFolder } from "../../api/createFolder";
 import { sendFilesToDisk } from "../../api/sendFilesToDisk";
+import { fetchUrl } from "../../api/fetchUrl";
 
 const CustomForm = () => {
-  const path =
-    "https://cloud-api.yandex.net/v1/disk/resources/upload/?path=testFolder7";
   return (
     <Formik
       initialValues={{ files: [] }}
@@ -15,7 +14,9 @@ const CustomForm = () => {
           .max(100, "max select 100 files"),
       })}
       onSubmit={async ({ files }) => {
-        const url = await getUrlForUploading(path);
+        const folderName = "test";
+        const href = await createFolder(folderName);
+        const url = await fetchUrl(folderName);
         const response = await sendFilesToDisk(url, files);
         console.log(response)
       }}

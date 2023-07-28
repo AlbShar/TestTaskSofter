@@ -7,7 +7,6 @@ const convertFilesToDataUris = async (files: string[]) => {
         const dataUri = await fileToDataUri(file);
         dataUris.push(dataUri);
       }
-      console.log(dataUris)
       return dataUris;
     } catch (error) {
       console.error("Ошибка при преобразовании файлов в Data URI:", error);
