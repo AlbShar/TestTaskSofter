@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { createFolder } from "../../api/createFolder";
@@ -9,6 +9,8 @@ import "./customForm.css";
 const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
     useState<string>("Файлы не выбраны");
+  const [isBtnDisabled, setBtnDisabled] = useState<boolean>(false);
+  const refInput = useRef<HTMLInputElement | null>(null);
 
   const urlHasLoaded = (responses: any, files: any) => {
     for (const response of responses) {
@@ -20,6 +22,10 @@ const CustomForm = () => {
     }
   };
 
+  useEffect(() => {
+    refInput.current?.focus();
+  }, [])
+
   return (
     <Formik
       initialValues={{ files: [], folderName: "" }}
@@ -29,9 +35,9 @@ const CustomForm = () => {
           .max(100, "Нельзя выбрать больше 100 файлов"),
         folderName: Yup.string()
           .max(15, "Максимальное количество символов - 15")
-          .required("Поле обязательное для заполнения"),
       })}
       onSubmit={async ({ files, folderName }, {resetForm}) => {
+        setBtnDisabled(true);
         const nameFiles = files.map((file) => file["name"]);
         const response = await createFolder(folderName);
         console.log(response);
@@ -41,6 +47,7 @@ const CustomForm = () => {
             urlHasLoaded(responses, files) 
             resetForm()
             setTextFileInput('Файлы не выбраны')
+            setBtnDisabled(false);
           })
           
       }}
@@ -51,13 +58,15 @@ const CustomForm = () => {
             <section>
               <article>
                 <label htmlFor="folderName" className="label">
-                  Название папки:
+                  Название папки
                 </label>
                 <Field
                   type="text"
                   id="folderName"
                   name="folderName"
                   className="input"
+                  innerRef={refInput}
+                  placeholder="Имя папки"
                 />
                 <ErrorMessage
                   name="folderName"
@@ -67,8 +76,10 @@ const CustomForm = () => {
               </article>
               <article>
                 <label htmlFor="file" className="label">
-                  Выберите файлы для загрузки (от 1 до 100):
+                  Выберите файлы для загрузки (от 1 до 100)
+                  <abbr title="Обязательное поле"> *</abbr>
                 </label>
+                
                 <div>
                   <div className="field__wrapper">
                     <input
@@ -91,30 +102,17 @@ const CustomForm = () => {
                       className="field__file-wrapper"
                       htmlFor="field__file-2"
                     >
-                      <div className="field__file-button">Выбрать</div>
+                      <div className="field__file-button" tabIndex={0} role="button">Выбрать</div>
                       <div className="field__file-fake">{textFileInput}</div>
                     </label>
                   </div>
-                  {/* <input
-                    type="file"
-                    id="file"
-                    name="files"
-                    multiple
-                    onChange={(event: any) => {
-                      const files = event.target.files;
-                      if (files) {
-                        let myFiles = Array.from(files);
-                        formik.setFieldValue("files", myFiles);
-                      }
-                    }}
-                  /> */}
                 </div>
                 <ErrorMessage name="files" component="div" className="error" />
               </article>
             </section>
-
+            <p style={{margin: '35px 0'}}>Поля, помеченные звездочкой (*), являются обязательными.</p>
             <p>
-              <button className="button" type="submit">
+              <button className="button" type="submit" tabIndex={0} disabled={isBtnDisabled}>
                 Загрузить
               </button>
             </p>

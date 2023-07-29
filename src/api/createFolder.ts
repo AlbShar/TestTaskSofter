@@ -1,4 +1,9 @@
-export async function createFolder(folderName: string) {
+export async function createFolder(folderName = "") {
+  
+  if (!folderName) {
+    return null;
+  };
+
   const token = "y0_AgAAAAAhFQf_AAo_kQAAAADoy4lMzCcknY2wS5irsvvOc2y3R_QkNec";
   const url = `https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(
     folderName
@@ -12,9 +17,8 @@ export async function createFolder(folderName: string) {
     },
   });
 
-
   if (response.ok) {
-    console.log(response)
+    console.log(response);
     let result = await response.json();
     return result.href;
   } else if (response.status === 409) {

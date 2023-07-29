@@ -6,7 +6,7 @@ function App() {
   return (
     <StyledDivApp>
       <StyledDivContainer>
-        <StyledH1>Загрузить данные в Яндекс Диск</StyledH1>
+        <StyledH1>Загрузите данные в Яндекс Диск</StyledH1>
         <CustomForm />
       </StyledDivContainer>
     </StyledDivApp>
