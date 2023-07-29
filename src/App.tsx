@@ -1,17 +1,15 @@
 import React from "react";
-import "./App.css";
 import CustomForm from "./components/CustomForm/CustomForm";
-import { StyledDivContainer, StyledH1 } from "./App.Styled";
+import { StyledDivContainer, StyledH1, StyledDivApp } from "./App.Styled";
 
 function App() {
   return (
-    <StyledDivContainer>
-      <StyledH1>
-        Загрузить данные в Яндекс
-        Диск
-      </StyledH1>
-      <CustomForm />
-    </StyledDivContainer>
+    <StyledDivApp>
+      <StyledDivContainer>
+        <StyledH1>Загрузить данные в Яндекс Диск</StyledH1>
+        <CustomForm />
+      </StyledDivContainer>
+    </StyledDivApp>
   );
 }
 

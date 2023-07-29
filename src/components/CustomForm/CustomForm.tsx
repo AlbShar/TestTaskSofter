@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import { createFolder } from "../../api/createFolder";
 import { sendFilesToDisk } from "../../api/sendFilesToDisk";
 import { fetchUrl } from "../../api/fetchUrl";
+import "./customForm.css"
 
 const urlHasLoaded = (responses: any, files: any) => {
   for (const response of responses) {
@@ -41,12 +42,12 @@ const CustomForm = () => {
           <Form method="post" encType="multipart/form-data">
             <section>
               <article>
-                <label htmlFor="file">Название папки:</label>
-                <Field type="text" id="folderName" name="folderName" />
-                <ErrorMessage name="folderName" component="div" />
+                <label htmlFor="folderName" className="label">Название папки:</label>
+                <Field type="text" id="folderName" name="folderName" className="input"/>
+                <ErrorMessage name="folderName" component="div" className="error"/>
               </article>
               <article>
-                <label htmlFor="file">
+                <label htmlFor="file" className="label">
                   Выберите файлы для загрузки (от 1 до 100):
                 </label>
                 <div>
@@ -64,12 +65,12 @@ const CustomForm = () => {
                     }}
                   />
                 </div>
-                <ErrorMessage name="files" component="div" />
+                <ErrorMessage name="files" component="div" className="error"/>
               </article>
             </section>
 
             <p>
-              <button type="submit">Submit</button>
+              <button className="button" type="submit">Загрузить</button>
             </p>
           </Form>
         );
