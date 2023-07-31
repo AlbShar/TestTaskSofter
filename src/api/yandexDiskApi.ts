@@ -30,20 +30,26 @@ const createFolder = async (folderName: string) => {
 const fetchHref = async (folderName: string, fileName: any) => {
   const url = `${baseUrlFetchHref}${folderName}%2F${fileName}`;
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json;",
-      Authorization: `${token}`,
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json;",
+        Authorization: `${token}`,
+      },
+    });
 
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error(response.status.toString());
+    }
 
-  if (response.ok) {
-    return response.json();
-  } else if (response.status === 409) {
-    const errorMessage = `Файл '${fileName}' уже существует в Яндекс Диске`;
-    return errorMessage;
+  } catch (e: any) {
+
+    if (e.message === '409') {
+      return fileName;
+    } 
   }
 };
 
@@ -57,7 +63,7 @@ const uploadFilesToDisk = async (url: any, blobData: any) => {
     body: blobData,
   });
 
-  return  response.json();
+  return response;
 };
 
 export { uploadFilesToDisk, fetchHref, createFolder };

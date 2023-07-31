@@ -9,19 +9,19 @@ import {
 import "./customForm.css";
 import { convertFileToBlob } from "../../helpers/convertFileToBlob";
 
-
 const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
     useState<string>("Файлы не выбраны");
   const [errorFolderName, setErrorFolderName] = useState<string | null>(null);
-  const [isDataUpload, setIsDataUpload] = useState<boolean>(false);
+  const [duplicateFiles, setDuplicateFiles] = useState<string | null>(null);
+  const [isDataUpload, setIsDataUpload] = useState<boolean | null>(null);
   const [isBtnDisabled, setBtnDisabled] = useState<boolean>(false);
   const refInput = useRef<HTMLInputElement | null>(null);
   const focusInputField = () => {
-      refInput.current?.focus();
+    refInput.current?.focus();
   };
 
-  const validate = ( folderName: string, files: string[] ) => {
+  const validate = (folderName: string, files: string[]) => {
     const errors: TErrors = {};
 
     if (folderName.length > 15) {
@@ -41,13 +41,30 @@ const CustomForm = () => {
   };
 
   type TErrors = {
-    [key in string]: string
-  }
+    [key in string]: string;
+  };
 
+  type TLink = {
+    href: string;
+    method: string;
+    templated: boolean;
+  };
 
   useEffect(() => {
     focusInputField();
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setDuplicateFiles(null)
+    } , 10000);
+  }, [duplicateFiles]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsDataUpload(null)
+    }, 15000);
+  }, [isDataUpload]);
 
   return (
     <Formik
@@ -70,36 +87,46 @@ const CustomForm = () => {
         const links = await Promise.all(
           nameFiles.map((nameFile) => fetchHref(folderName, nameFile))
         );
-        console.log(links)
-        const hrefs = links.map(link => link.href);
+        console.log(links);
+        const correctHrefs: string[] = [];
+        const duplicateFiles: string[] = [];
+
+        links.forEach((link: string | TLink) => {
+          if (typeof link === "string") {
+            duplicateFiles.push(link);
+          } else {
+            correctHrefs.push(link.href);
+          }
+        });
+
+        console.log(correctHrefs, duplicateFiles);
 
         const blobFilesPromises = files.map(
           async (file) => await convertFileToBlob(file)
         );
         const blobFiles = await Promise.all(blobFilesPromises);
 
-        const response = await Promise.all(
-          hrefs.map((href, index) => uploadFilesToDisk(href, blobFiles[index]))
+        
+
+        const responses = await Promise.all(
+          correctHrefs.map((href, index) =>
+            uploadFilesToDisk(href, blobFiles[index])
+          )
         );
 
-        console.log(response);
-        // const response = Promise.all(
-        //   hrefs.map((href) => uploadFilesToDisk(href, files))
-        // );
-
-        // console.log(hrefs);
-
-        // links.forEach((link) => {
-        //   if (link.href) {
-        //     uploadFilesToDisk(link.href, files);
-        //     resetForm();
-        //     setTextFileInput("Файлы не выбраны");
-        //   } else {
-        //     throw new Error("запрос с ошибкой");
-        //   }
-        // });
-
+        responses.forEach((response) => {
+          if (!response.ok) {
+            setIsDataUpload(false);
+          }
+        });
+        
+        if (duplicateFiles.length) {
+          setDuplicateFiles(duplicateFiles.join(", "));
+        }
+        setIsDataUpload(true);
         setBtnDisabled(false);
+        resetForm();
+        setTextFileInput("Файлы не выбраны");
       }}
     >
       {({ setFieldValue }) => {
@@ -167,11 +194,25 @@ const CustomForm = () => {
                   </div>
                 </div>
                 <ErrorMessage name="files" component="div" className="error" />
+                {duplicateFiles ? (
+                  <div className="warning">{`Файлы - ${duplicateFiles} уже присутсвуют на диске`}</div>
+                ) : null}
               </article>
             </section>
             <p style={{ margin: "35px 0" }}>
               Поля, помеченные звездочкой (*), являются обязательными.
             </p>
+            <div>
+              {isDataUpload === true ? (
+                <div className="success">
+                  Поздравляю! Файлы успешно сохранены в Яндекс Диске
+                </div>
+              ) : isDataUpload === false ? (
+                <div className="success">
+                  При загрузке файлов произошла ошибка. Повторите загрузку снова
+                </div>
+              ) : null}
+            </div>
             <p>
               <button
                 className="button"
