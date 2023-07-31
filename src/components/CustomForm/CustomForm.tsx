@@ -1,30 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { createFolder } from "../../api/createFolder";
-import { sendFilesToDisk } from "../../api/sendFilesToDisk";
-import { fetchUrl } from "../../api/fetchUrl";
+import {
+  createFolder,
+  fetchHref,
+  uploadFilesToDisk,
+} from "../../api/yandexDiskApi";
 import "./customForm.css";
+
 
 const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
     useState<string>("Файлы не выбраны");
+  const [errorFolderName, setErrorFolderName] = useState<string>("");
   const [isBtnDisabled, setBtnDisabled] = useState<boolean>(false);
   const refInput = useRef<HTMLInputElement | null>(null);
 
-  const urlHasLoaded = (responses: any, files: any) => {
-    for (const response of responses) {
-      if (response.href) {
-        sendFilesToDisk(response.href, files);
-      } else {
-        throw new Error("запрос с ошибкой");
-      }
-    }
-  };
-
   useEffect(() => {
     refInput.current?.focus();
-  }, [])
+  }, []);
 
   return (
     <Formik
@@ -33,26 +27,41 @@ const CustomForm = () => {
         files: Yup.array()
           .min(1, "Выберите минимум 1 файл")
           .max(100, "Нельзя выбрать больше 100 файлов"),
-        folderName: Yup.string()
-          .max(15, "Максимальное количество символов - 15")
+        folderName: Yup.string().max(
+          15,
+          "Максимальное количество символов - 15"
+        ),
       })}
-      onSubmit={async ({ files, folderName }, {resetForm}) => {
-        setBtnDisabled(true);
-        const nameFiles = files.map((file) => file["name"]);
-        const response = await createFolder(folderName);
-        console.log(response);
+      onSubmit={async ({ files, folderName }, { resetForm }) => {
 
-        Promise.all(nameFiles.map((nameFile) => fetchUrl(folderName, nameFile)))
-          .then((responses) => {
-            urlHasLoaded(responses, files) 
-            resetForm()
-            setTextFileInput('Файлы не выбраны')
-            setBtnDisabled(false);
-          })
-          
+        setBtnDisabled(true);
+        const errorMessage = await createFolder(folderName);
+        if (errorMessage) {
+          setErrorFolderName(errorMessage);
+          setBtnDisabled(false);
+
+          return false;
+        }
+
+        const nameFiles = files.map((file) => file["name"]);
+        const linksJSON = await Promise.all(
+          nameFiles.map((nameFile) => fetchHref(folderName, nameFile))
+        );
+
+        linksJSON.forEach((link) => {
+          if (link.href) {
+            uploadFilesToDisk(link.href, files);
+            resetForm();
+            setTextFileInput("Файлы не выбраны");
+          } else {
+            throw new Error("запрос с ошибкой");
+          }
+        });
+
+        setBtnDisabled(false);
       }}
     >
-      {(formik) => {
+      {({ setFieldValue }) => {
         return (
           <Form method="post" encType="multipart/form-data">
             <section>
@@ -73,13 +82,16 @@ const CustomForm = () => {
                   component="div"
                   className="error"
                 />
+                {errorFolderName ? (
+                  <div className="error">{errorFolderName}</div>
+                ) : null}
               </article>
               <article>
                 <label htmlFor="file" className="label">
                   Выберите файлы для загрузки (от 1 до 100)
                   <abbr title="Обязательное поле"> *</abbr>
                 </label>
-                
+
                 <div>
                   <div className="field__wrapper">
                     <input
@@ -93,7 +105,7 @@ const CustomForm = () => {
                         if (files) {
                           setTextFileInput(`Выбрано файлов: ${files.length}`);
                           let myFiles = Array.from(files);
-                          formik.setFieldValue("files", myFiles);
+                          setFieldValue("files", myFiles);
                         }
                       }}
                     />
@@ -102,7 +114,13 @@ const CustomForm = () => {
                       className="field__file-wrapper"
                       htmlFor="field__file-2"
                     >
-                      <div className="field__file-button" tabIndex={0} role="button">Выбрать</div>
+                      <div
+                        className="field__file-button"
+                        tabIndex={0}
+                        role="button"
+                      >
+                        Выбрать
+                      </div>
                       <div className="field__file-fake">{textFileInput}</div>
                     </label>
                   </div>
@@ -110,9 +128,16 @@ const CustomForm = () => {
                 <ErrorMessage name="files" component="div" className="error" />
               </article>
             </section>
-            <p style={{margin: '35px 0'}}>Поля, помеченные звездочкой (*), являются обязательными.</p>
+            <p style={{ margin: "35px 0" }}>
+              Поля, помеченные звездочкой (*), являются обязательными.
+            </p>
             <p>
-              <button className="button" type="submit" tabIndex={0} disabled={isBtnDisabled}>
+              <button
+                className="button"
+                type="submit"
+                tabIndex={0}
+                disabled={isBtnDisabled}
+              >
                 Загрузить
               </button>
             </p>
