@@ -1,5 +1,3 @@
-import { converDataUrisToBlob } from "../helpers/converDataUrisToBlob";
-
 const token = "y0_AgAAAAAhFQf_AAo_kQAAAADoy4lMzCcknY2wS5irsvvOc2y3R_QkNec";
 const baseUrlCreateFolder =
   "https://cloud-api.yandex.net/v1/disk/resources?path=";
@@ -40,30 +38,26 @@ const fetchHref = async (folderName: string, fileName: any) => {
     },
   });
 
-  return response.json();
 
-  // if (response.ok) {
-  //   let result = await response.json();
-  //   return result.href;
-  // } else {
-  //   throw new Error("запрос с ошибкой");
-  // }
+  if (response.ok) {
+    return response.json();
+  } else if (response.status === 409) {
+    const errorMessage = `Файл '${fileName}' уже существует в Яндекс Диске`;
+    return errorMessage;
+  }
 };
 
 //отправляем файл(ы) (blob) на полученную ссылку
-const uploadFilesToDisk = async (url: any, files: string[]) => {
-  let data = await converDataUrisToBlob(files);
+const uploadFilesToDisk = async (url: any, blobData: any) => {
+  let response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: blobData,
+  });
 
-  for (const item of data) {
-    let response = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: item,
-    });
-    return response;
-  }
+  return  response.json();
 };
 
 export { uploadFilesToDisk, fetchHref, createFolder };

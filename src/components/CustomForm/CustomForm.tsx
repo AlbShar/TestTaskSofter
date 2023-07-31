@@ -7,56 +7,97 @@ import {
   uploadFilesToDisk,
 } from "../../api/yandexDiskApi";
 import "./customForm.css";
+import { convertFileToBlob } from "../../helpers/convertFileToBlob";
 
 
 const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
     useState<string>("Файлы не выбраны");
-  const [errorFolderName, setErrorFolderName] = useState<string>("");
+  const [errorFolderName, setErrorFolderName] = useState<string | null>(null);
+  const [isDataUpload, setIsDataUpload] = useState<boolean>(false);
   const [isBtnDisabled, setBtnDisabled] = useState<boolean>(false);
   const refInput = useRef<HTMLInputElement | null>(null);
+  const focusInputField = () => {
+      refInput.current?.focus();
+  };
+
+  const validate = ( folderName: string, files: string[] ) => {
+    const errors: TErrors = {};
+
+    if (folderName.length > 15) {
+      errors.folderName = "Максимальное количество символов - 15";
+    } else if (errorFolderName) {
+      console.log("fsdf");
+      setErrorFolderName(null);
+    }
+
+    if (files.length < 1) {
+      errors.files = "Выберите минимум 1 файл";
+    } else if (files.length > 100) {
+      errors.files = "Нельзя выбрать больше 100 файлов";
+    }
+
+    return errors;
+  };
+
+  type TErrors = {
+    [key in string]: string
+  }
+
 
   useEffect(() => {
-    refInput.current?.focus();
+    focusInputField();
   }, []);
 
   return (
     <Formik
       initialValues={{ files: [], folderName: "" }}
-      validationSchema={Yup.object({
-        files: Yup.array()
-          .min(1, "Выберите минимум 1 файл")
-          .max(100, "Нельзя выбрать больше 100 файлов"),
-        folderName: Yup.string().max(
-          15,
-          "Максимальное количество символов - 15"
-        ),
-      })}
+      validate={({ files, folderName }) => validate(folderName, files)}
       onSubmit={async ({ files, folderName }, { resetForm }) => {
-
         setBtnDisabled(true);
+
         const errorMessage = await createFolder(folderName);
         if (errorMessage) {
           setErrorFolderName(errorMessage);
           setBtnDisabled(false);
+          focusInputField();
 
           return false;
         }
 
         const nameFiles = files.map((file) => file["name"]);
-        const linksJSON = await Promise.all(
+
+        const links = await Promise.all(
           nameFiles.map((nameFile) => fetchHref(folderName, nameFile))
         );
+        console.log(links)
+        const hrefs = links.map(link => link.href);
 
-        linksJSON.forEach((link) => {
-          if (link.href) {
-            uploadFilesToDisk(link.href, files);
-            resetForm();
-            setTextFileInput("Файлы не выбраны");
-          } else {
-            throw new Error("запрос с ошибкой");
-          }
-        });
+        const blobFilesPromises = files.map(
+          async (file) => await convertFileToBlob(file)
+        );
+        const blobFiles = await Promise.all(blobFilesPromises);
+
+        const response = await Promise.all(
+          hrefs.map((href, index) => uploadFilesToDisk(href, blobFiles[index]))
+        );
+
+        console.log(response);
+        // const response = Promise.all(
+        //   hrefs.map((href) => uploadFilesToDisk(href, files))
+        // );
+
+        // console.log(hrefs);
+
+        // links.forEach((link) => {
+        //   if (link.href) {
+        //     uploadFilesToDisk(link.href, files);
+        //     resetForm();
+        //     setTextFileInput("Файлы не выбраны");
+        //   } else {
+        //     throw new Error("запрос с ошибкой");
+        //   }
+        // });
 
         setBtnDisabled(false);
       }}
