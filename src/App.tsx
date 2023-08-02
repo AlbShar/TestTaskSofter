@@ -1,9 +1,8 @@
-import React from "react";
-import CustomForm from "./components/CustomForm/CustomForm";
-import { StyledDivContainer, StyledH1, StyledDivApp } from "./App.Styled";
+import React from 'react';
+import CustomForm from './components/CustomForm/CustomForm';
+import { StyledDivContainer, StyledH1, StyledDivApp } from './App.Styled';
 
 function App() {
-  
   return (
     <StyledDivApp>
       <StyledDivContainer>

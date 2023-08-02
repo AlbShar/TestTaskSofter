@@ -3,16 +3,16 @@ const token = process.env.REACT_APP_API_TOKEN;
 //запрос создаст папку по указанному пути
 const createFolder = async (folderName: string) => {
   const baseUrl = process.env.REACT_APP_API_BASEURLFOLDER;
- 
+
   if (!folderName) {
     return null;
   }
   const url = `${baseUrl}${encodeURIComponent(folderName)}`;
 
   let response = await fetch(url, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json;",
+      'Content-Type': 'application/json;',
       Authorization: `${token}`,
     },
   });
@@ -31,9 +31,9 @@ const fetchHref = async (folderName: string, fileName: string) => {
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json;",
+        'Content-Type': 'application/json;',
         Authorization: `${token}`,
       },
     });
@@ -44,7 +44,7 @@ const fetchHref = async (folderName: string, fileName: string) => {
       throw new Error(response.status.toString());
     }
   } catch (e: any) {
-    if (e.message === "409") {
+    if (e.message === '409') {
       return fileName;
     }
   }
@@ -55,9 +55,9 @@ const uploadFilesToDisk = async (url: string, blobData: Blob) => {
   console.log(blobData);
 
   let response = await fetch(url, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: blobData,
   });

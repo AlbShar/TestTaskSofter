@@ -1,9 +1,11 @@
 ## Тестовое задание "Софтер" на должность "Junior frontend-developer".
 
-### Задача: 
+### Задача:
+
 Используя react реализовать компонент выбора и загрузки файлов в Яндекс.Диск. Нужно предусмотреть выбор от 1 до 100 файлов.
 
 ### Added functionality:
+
 - Create a folder in Yandex Disk
 - Uploading files in Yandex Disk
 - Validation of data entry fields
@@ -38,7 +40,6 @@ Add the following environment variables to your .env file (in the root of your p
   REACT_APP_API_BASEURLUPLOAD='https://cloud-api.yandex.net/v1/disk/resources/upload?path='
 ```
 
-
 Start the development server
 
 ```bash
@@ -46,7 +47,9 @@ Start the development server
 ```
 
 ### Tech Stack:
+
 - React
 - TypeScript
 - Styled-components
 - Formik
+- Prettier

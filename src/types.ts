@@ -8,5 +8,4 @@ type TLink = {
   templated: boolean;
 };
 
-
 export type { TErrors, TLink };
