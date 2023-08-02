@@ -1,16 +1,13 @@
-const token = "y0_AgAAAAAhFQf_AAo_kQAAAADoy4lMzCcknY2wS5irsvvOc2y3R_QkNec";
-const baseUrlCreateFolder =
-  "https://cloud-api.yandex.net/v1/disk/resources?path=";
-const baseUrlFetchHref =
-  "https://cloud-api.yandex.net/v1/disk/resources/upload?path=";
-
+const token = process.env.REACT_APP_API_TOKEN;
 
 //запрос создаст папку по указанному пути
 const createFolder = async (folderName: string) => {
+  const baseUrl = process.env.REACT_APP_API_BASEURLFOLDER;
+ 
   if (!folderName) {
     return null;
   }
-  const url = `${baseUrlCreateFolder}${encodeURIComponent(folderName)}`;
+  const url = `${baseUrl}${encodeURIComponent(folderName)}`;
 
   let response = await fetch(url, {
     method: "PUT",
@@ -29,7 +26,8 @@ const createFolder = async (folderName: string) => {
 //первый запрос для загрузки файла, вернет ссылку по которой нужно отправить файл
 //ссылка действует 30мин.
 const fetchHref = async (folderName: string, fileName: string) => {
-  const url = `${baseUrlFetchHref}${folderName}%2F${fileName}`;
+  const baseUrl = process.env.REACT_APP_API_BASEURLUPLOAD;
+  const url = `${baseUrl}${folderName}%2F${fileName}`;
 
   try {
     const response = await fetch(url, {
