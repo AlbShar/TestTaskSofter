@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, ChangeEvent } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import {
   createFolder,
   fetchHref,
@@ -12,7 +11,7 @@ import type { TErrors, TLink } from '../../types';
 
 const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
-    useState<string>('Файлы не выбраны');
+    useState('Файлы не выбраны');
   const [errorFolderName, setErrorFolderName] = useState<string | null>(null);
   const [stateDuplicateFiles, setStateDuplicateFiles] = useState<string | null>(null);
   const [overwrite, setOverwrite] = useState<boolean>(false);
@@ -224,7 +223,7 @@ const CustomForm = () => {
                 Загрузить
               </button>
               <div style={{ margin: '20px 0' }}>
-                Поля, помеченные звездочкой (*), являются обязательными.
+                Поля, отмеченные звездочкой (*), являются обязательными.
               </div>
             </div>
           </Form>

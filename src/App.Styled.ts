@@ -2,12 +2,18 @@ import styled from 'styled-components';
 
 const StyledDivContainer = styled.div`
   box-sizing: border-box;
-  max-width: 1120px;
-  margin: 50px auto;
+  max-width: 600px;
+  margin: 20px auto;
   padding: 15px 30px;
   border-radius: 7px;
   background-color: #fff;
-`;
+
+  @media screen and (min-width: 1024.8px) {
+    margin: 50px auto;
+    max-width: 900px;
+  }
+  
+  `;
 
 const StyledH1 = styled.h1`
   text-align: center;

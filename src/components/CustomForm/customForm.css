@@ -10,7 +10,7 @@
 
 .input {
   box-sizing: border-box;
-  width: 50%;
+  width: 60%;
   height: 50px;
   margin-top: 15px;
   padding: 5px 15px;
@@ -19,6 +19,7 @@
   color: #353535;
   border-radius: 10px;
   font-size: 22px;
+
 }
 
 .input:focus {
@@ -134,4 +135,10 @@
   justify-content: center;
   border-radius: 5px;
   cursor: pointer;
+}
+
+@media screen and (min-width: 1024.8px) {
+  .input {
+    width: 60%;
+  }
 }
