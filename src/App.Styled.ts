@@ -21,7 +21,6 @@ const StyledH1 = styled.h1`
 `;
 
 const StyledDivApp = styled.div`
-  width: 100%;
   min-height: 100vh;
   background-image: linear-gradient(257deg, #f59c07, #f57507);
   padding: 50px;

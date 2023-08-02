@@ -10,8 +10,7 @@ import { convertFileToBlob } from '../../helpers/convertFileToBlob';
 import type { TErrors, TLink } from '../../types';
 
 const CustomForm = () => {
-  const [textFileInput, setTextFileInput] =
-    useState('Файлы не выбраны');
+  const [textFileInput, setTextFileInput] = useState('Файлы не выбраны');
   const [errorFolderName, setErrorFolderName] = useState<string | null>(null);
   const [stateDuplicateFiles, setStateDuplicateFiles] = useState<string | null>(null);
   const [overwrite, setOverwrite] = useState<boolean>(false);
@@ -56,6 +55,8 @@ const CustomForm = () => {
       validate={({ files, folderName }) => validate(folderName, files)}
       onSubmit={async ({ files, folderName }, { resetForm }) => {
         setBtnDisabled(true);
+        setOverwrite(false);
+
         if (stateDuplicateFiles) {
           setStateDuplicateFiles(null);
         }
@@ -89,12 +90,9 @@ const CustomForm = () => {
           }
         });
 
-
-
         if (duplicateFiles.length) {
           setStateDuplicateFiles(duplicateFiles.join(', '));
           setOverwrite(true);
-          setBtnDisabled(false);
           
         } else {
           const blobFilesPromises: Promise<Blob>[] = files.map(
@@ -114,12 +112,13 @@ const CustomForm = () => {
             }
           });
 
-          setOverwrite(false);
           setIsDataUpload(true);
-          setBtnDisabled(false);
+          setOverwrite(false);
           resetForm();
           setTextFileInput('Файлы не выбраны');
         }
+
+        setBtnDisabled(false);
       }}
     >
       {({ setFieldValue }) => {
