@@ -1,4 +1,4 @@
-const convertFileToBlob = async (file: File) => {
+const convertFileToBlob = async (file: File): Promise<Blob> => {
   const result = new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -13,7 +13,7 @@ const convertFileToBlob = async (file: File) => {
     reader.readAsArrayBuffer(file);
   });
 
-  return await result;
+  return await result as Promise<Blob>;
 };
 
 export { convertFileToBlob };

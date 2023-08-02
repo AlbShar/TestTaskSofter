@@ -3,10 +3,6 @@ const token = process.env.REACT_APP_API_TOKEN;
 //запрос создаст папку по указанному пути
 const createFolder = async (folderName: string) => {
   const baseUrl = process.env.REACT_APP_API_BASEURLFOLDER;
-
-  if (!folderName) {
-    return null;
-  }
   const url = `${baseUrl}${encodeURIComponent(folderName)}`;
 
   let response = await fetch(url, {
@@ -25,9 +21,9 @@ const createFolder = async (folderName: string) => {
 
 //первый запрос для загрузки файла, вернет ссылку по которой нужно отправить файл
 //ссылка действует 30мин.
-const fetchHref = async (folderName: string, fileName: string) => {
+const fetchHref = async (folderName: string, fileName: string, overwrite = false) => {
   const baseUrl = process.env.REACT_APP_API_BASEURLUPLOAD;
-  const url = `${baseUrl}${folderName}%2F${fileName}`;
+  const url = `${baseUrl}${folderName}%2F${fileName}&overwrite=${overwrite}`;
 
   try {
     const response = await fetch(url, {
@@ -52,7 +48,6 @@ const fetchHref = async (folderName: string, fileName: string) => {
 
 //отправляем файл(ы) (blob) на полученную ссылку
 const uploadFilesToDisk = async (url: string, blobData: Blob) => {
-  console.log(blobData);
 
   let response = await fetch(url, {
     method: 'PUT',

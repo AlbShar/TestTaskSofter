@@ -1,16 +1,11 @@
 .error {
   color: #e53e3e;
-  margin-top: 8px;
-}
-
-.warning {
-  color: orange;
-  margin-top: 8px;
+  margin: 10px 0;
 }
 
 .success {
   color: green;
-  margin-top: 8px;
+  margin: 10px 0;
 }
 
 .input {
@@ -50,6 +45,22 @@
   border-radius: 10px;
   background-image: linear-gradient(257deg, #f59c07, #f57507);
 }
+
+.button__answer {
+  display: inline-block;
+  width: auto;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: black;
+  border: 1px solid black;
+  font-weight: 700;
+  border-radius: 5px;
+  background-image: none;
+  background-color: transparent;
+  margin: 0 15px 0 0;
+}
+
 
 .button:disabled {
   cursor: not-allowed;

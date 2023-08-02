@@ -14,7 +14,8 @@ const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
     useState<string>('Файлы не выбраны');
   const [errorFolderName, setErrorFolderName] = useState<string | null>(null);
-  const [duplicateFiles, setDuplicateFiles] = useState<string | null>(null);
+  const [stateDuplicateFiles, setStateDuplicateFiles] = useState<string | null>(null);
+  const [overwrite, setOverwrite] = useState<boolean>(false);
   const [isDataUpload, setIsDataUpload] = useState<boolean | null>(null);
   const [isBtnDisabled, setBtnDisabled] = useState<boolean>(false);
   const refInput = useRef<HTMLInputElement | null>(null);
@@ -28,7 +29,6 @@ const CustomForm = () => {
     if (folderName.length > 15) {
       errors.folderName = 'Максимальное количество символов - 15';
     } else if (errorFolderName) {
-      console.log('fsdf');
       setErrorFolderName(null);
     }
 
@@ -47,14 +47,8 @@ const CustomForm = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      setDuplicateFiles(null);
-    }, 10000);
-  }, [duplicateFiles]);
-
-  useEffect(() => {
-    setTimeout(() => {
       setIsDataUpload(null);
-    }, 15000);
+    }, 10000);
   }, [isDataUpload]);
 
   return (
@@ -63,22 +57,28 @@ const CustomForm = () => {
       validate={({ files, folderName }) => validate(folderName, files)}
       onSubmit={async ({ files, folderName }, { resetForm }) => {
         setBtnDisabled(true);
+        if (stateDuplicateFiles) {
+          setStateDuplicateFiles(null);
+        }
 
-        const errorMessage = await createFolder(folderName);
-        if (errorMessage) {
-          setErrorFolderName(errorMessage);
-          setBtnDisabled(false);
-          focusInputField();
+        if (folderName) {
+          const errorMessage = await createFolder(folderName);
+          if (errorMessage) {
+            setErrorFolderName(errorMessage);
+            setBtnDisabled(false);
+            focusInputField();
 
-          return false;
+            return false;
+          }
         }
 
         const nameFiles = files.map((file) => file['name']);
 
         const links = await Promise.all(
-          nameFiles.map((nameFile) => fetchHref(folderName, nameFile)),
+          nameFiles.map((nameFile) =>
+            fetchHref(folderName, nameFile, overwrite),
+          ),
         );
-        console.log(links);
         const correctHrefs: string[] = [];
         const duplicateFiles: string[] = [];
 
@@ -90,38 +90,43 @@ const CustomForm = () => {
           }
         });
 
-        console.log(correctHrefs, duplicateFiles);
 
-        const blobFilesPromises = files.map(
-          async (file) => await convertFileToBlob(file),
-        );
-        const blobFiles = await Promise.all(blobFilesPromises);
-
-        const responses = await Promise.all(
-          correctHrefs.map((href, index) =>
-            uploadFilesToDisk(href, blobFiles[index] as Blob),
-          ),
-        );
-
-        responses.forEach((response) => {
-          if (!response.ok) {
-            setIsDataUpload(false);
-          }
-        });
 
         if (duplicateFiles.length) {
-          setDuplicateFiles(duplicateFiles.join(', '));
+          setStateDuplicateFiles(duplicateFiles.join(', '));
+          setOverwrite(true);
+          setBtnDisabled(false);
+          
+        } else {
+          const blobFilesPromises: Promise<Blob>[] = files.map(
+            async (file) => await convertFileToBlob(file),
+          );
+          const blobFiles: Blob[] = await Promise.all(blobFilesPromises);
+
+          const responses = await Promise.all(
+            correctHrefs.map((href: string, index: number) =>
+              uploadFilesToDisk(href, blobFiles[index] as Blob),
+            ),
+          );
+
+          responses.forEach((response) => {
+            if (!response.ok) {
+              setIsDataUpload(false);
+            }
+          });
+
+          setOverwrite(false);
+          setIsDataUpload(true);
+          setBtnDisabled(false);
+          resetForm();
+          setTextFileInput('Файлы не выбраны');
         }
-        setIsDataUpload(true);
-        setBtnDisabled(false);
-        resetForm();
-        setTextFileInput('Файлы не выбраны');
       }}
     >
       {({ setFieldValue }) => {
         return (
           <Form method='post' encType='multipart/form-data'>
-            <section>
+            <section style={{ margin: '0 0 50px 0' }}>
               <article>
                 <label htmlFor='folderName' className='label'>
                   Название папки
@@ -175,6 +180,13 @@ const CustomForm = () => {
                         className='field__file-button'
                         tabIndex={0}
                         role='button'
+                        onClick={
+                          () => {
+                            if (stateDuplicateFiles) {
+                              setStateDuplicateFiles(null)
+                            }
+                          }
+                        }
                       >
                         Выбрать
                       </div>
@@ -183,26 +195,26 @@ const CustomForm = () => {
                   </div>
                 </div>
                 <ErrorMessage name='files' component='div' className='error' />
-                {duplicateFiles ? (
-                  <div className='warning'>{`Файлы - ${duplicateFiles} уже присутсвуют на диске`}</div>
+                {stateDuplicateFiles ? (
+                  <article style={{ margin: '15px 0 35px 0' }}>
+                    <div className='error'>{`${stateDuplicateFiles} уже есть на диске. Если хотите заменить, то нажмите кнопку загрузить или выберите другие файлы`}</div>
+                  </article>
                 ) : null}
               </article>
             </section>
-            <p style={{ margin: '35px 0' }}>
-              Поля, помеченные звездочкой (*), являются обязательными.
-            </p>
+
             <div>
               {isDataUpload === true ? (
                 <div className='success'>
                   Поздравляю! Файлы успешно сохранены в Яндекс Диске
                 </div>
               ) : isDataUpload === false ? (
-                <div className='success'>
+                <div className='error'>
                   При загрузке файлов произошла ошибка. Повторите загрузку снова
                 </div>
               ) : null}
             </div>
-            <p>
+            <div>
               <button
                 className='button'
                 type='submit'
@@ -211,7 +223,10 @@ const CustomForm = () => {
               >
                 Загрузить
               </button>
-            </p>
+              <div style={{ margin: '20px 0' }}>
+                Поля, помеченные звездочкой (*), являются обязательными.
+              </div>
+            </div>
           </Form>
         );
       }}
