@@ -30,11 +30,13 @@ Install dependencies
 
 Add the following environment variables to your .env file (in the root of your project’s directory). To get your own `API_TOKEN` go to the [link](https://yandex.ru/dev/direct/doc/start/token.html) and follow instructions.
 
-`API_TOKEN`
+```bash
+  REACT_APP_API_TOKEN='...'
 
-`API_BASEURLFOLDER`
+  REACT_APP_API_BASEURLFOLDER='https://cloud-api.yandex.net/v1/disk/resources?path='
 
-`API_BASEURLUPLOAD`
+  REACT_APP_API_BASEURLUPLOAD='https://cloud-api.yandex.net/v1/disk/resources/upload?path='
+```
 
 
 Start the development server
