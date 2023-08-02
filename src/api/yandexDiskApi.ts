@@ -4,6 +4,7 @@ const baseUrlCreateFolder =
 const baseUrlFetchHref =
   "https://cloud-api.yandex.net/v1/disk/resources/upload?path=";
 
+
 //запрос создаст папку по указанному пути
 const createFolder = async (folderName: string) => {
   if (!folderName) {
@@ -27,7 +28,7 @@ const createFolder = async (folderName: string) => {
 
 //первый запрос для загрузки файла, вернет ссылку по которой нужно отправить файл
 //ссылка действует 30мин.
-const fetchHref = async (folderName: string, fileName: any) => {
+const fetchHref = async (folderName: string, fileName: string) => {
   const url = `${baseUrlFetchHref}${folderName}%2F${fileName}`;
 
   try {
@@ -44,17 +45,17 @@ const fetchHref = async (folderName: string, fileName: any) => {
     } else {
       throw new Error(response.status.toString());
     }
-
   } catch (e: any) {
-
-    if (e.message === '409') {
+    if (e.message === "409") {
       return fileName;
-    } 
+    }
   }
 };
 
 //отправляем файл(ы) (blob) на полученную ссылку
-const uploadFilesToDisk = async (url: any, blobData: any) => {
+const uploadFilesToDisk = async (url: string, blobData: Blob) => {
+  console.log(blobData);
+
   let response = await fetch(url, {
     method: "PUT",
     headers: {

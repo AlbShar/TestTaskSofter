@@ -1,4 +1,4 @@
-const convertFileToBlob = async (file: any) => {
+const convertFileToBlob = async (file: File) => {
   const result =  new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {

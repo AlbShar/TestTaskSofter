@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import {
@@ -8,6 +8,7 @@ import {
 } from "../../api/yandexDiskApi";
 import "./customForm.css";
 import { convertFileToBlob } from "../../helpers/convertFileToBlob";
+import type { TErrors, TLink } from "../../types";
 
 const CustomForm = () => {
   const [textFileInput, setTextFileInput] =
@@ -40,15 +41,6 @@ const CustomForm = () => {
     return errors;
   };
 
-  type TErrors = {
-    [key in string]: string;
-  };
-
-  type TLink = {
-    href: string;
-    method: string;
-    templated: boolean;
-  };
 
   useEffect(() => {
     focusInputField();
@@ -110,7 +102,7 @@ const CustomForm = () => {
 
         const responses = await Promise.all(
           correctHrefs.map((href, index) =>
-            uploadFilesToDisk(href, blobFiles[index])
+            uploadFilesToDisk(href, blobFiles[index] as Blob)
           )
         );
 
@@ -168,7 +160,7 @@ const CustomForm = () => {
                       id="field__file-2"
                       className="field field__file"
                       multiple
-                      onChange={(event: any) => {
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
                         const files = event.target.files;
                         if (files) {
                           setTextFileInput(`Выбрано файлов: ${files.length}`);
