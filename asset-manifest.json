@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/TestTaskSofter/static/css/main.f63796a7.css",
+    "main.js": "/TestTaskSofter/static/js/main.393c7d8c.js",
+    "index.html": "/TestTaskSofter/index.html",
+    "main.f63796a7.css.map": "/TestTaskSofter/static/css/main.f63796a7.css.map",
+    "main.393c7d8c.js.map": "/TestTaskSofter/static/js/main.393c7d8c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f63796a7.css",
+    "static/js/main.393c7d8c.js"
+  ]
+}
