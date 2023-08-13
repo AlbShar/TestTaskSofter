@@ -44,9 +44,12 @@ const CustomForm = () => {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       setIsDataUpload(null);
     }, 10000);
+    return () => {
+      clearTimeout(timerId)
+    }
   }, [isDataUpload]);
 
   return (
@@ -107,7 +110,7 @@ const CustomForm = () => {
           );
 
           responses.forEach((response) => {
-            if (!response.ok) {
+            if (response && !response.ok) {
               setIsDataUpload(false);
             }
           });

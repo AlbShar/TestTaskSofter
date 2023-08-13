@@ -2,26 +2,34 @@ const token = process.env.REACT_APP_API_TOKEN;
 
 //запрос создаст папку по указанному пути
 const createFolder = async (folderName: string) => {
-  const baseUrl = process.env.REACT_APP_API_BASEURLFOLDER;
-  const url = `${baseUrl}${encodeURIComponent(folderName)}`;
+  try {
+    const baseUrl = process.env.REACT_APP_API_BASEURLFOLDER;
+    const url = `${baseUrl}${encodeURIComponent(folderName)}`;
 
-  let response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json;',
-      Authorization: `${token}`,
-    },
-  });
+    let response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json;',
+        Authorization: `${token}`,
+      },
+    });
 
-  if (response.status === 409) {
-    const errorMessage = `Папка '${folderName}' уже существует в Яндекс Диске. Выберите другое название`;
-    return errorMessage;
+    if (response.status === 409) {
+      const errorMessage = `Папка '${folderName}' уже существует в Яндекс Диске. Выберите другое название`;
+      return errorMessage;
+    }
+  } catch (e) {
+    console.error(e);
   }
 };
 
 //первый запрос для загрузки файла, вернет ссылку по которой нужно отправить файл
 //ссылка действует 30мин.
-const fetchHref = async (folderName: string, fileName: string, overwrite = false) => {
+const fetchHref = async (
+  folderName: string,
+  fileName: string,
+  overwrite = false,
+) => {
   const baseUrl = process.env.REACT_APP_API_BASEURLUPLOAD;
   const url = `${baseUrl}${folderName}%2F${fileName}&overwrite=${overwrite}`;
 
@@ -48,16 +56,19 @@ const fetchHref = async (folderName: string, fileName: string, overwrite = false
 
 //отправляем файл(ы) (blob) на полученную ссылку
 const uploadFilesToDisk = async (url: string, blobData: Blob) => {
+  try {
+    let response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: blobData,
+    });
 
-  let response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: blobData,
-  });
-
-  return response;
+    return response;
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 export { uploadFilesToDisk, fetchHref, createFolder };
